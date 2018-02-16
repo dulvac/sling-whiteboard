@@ -47,7 +47,7 @@ import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVL
  */
 
 @Component(
-        name = "Startup Check Monitor",
+        name = "OSGI Installation Startup Check",
         service = {OsgiInstallerCheck.class, StartupCheck.class},
         configurationPid = "org.apache.sling.startupcheck.core.OsgiInstallerCheckImpl"
 )
@@ -80,8 +80,7 @@ public class OsgiInstallerCheckImpl implements OsgiInstallerCheck {
      */
     @Override
     public boolean isStarted() {
-
-
+        return true;
     }
 
     @Override
