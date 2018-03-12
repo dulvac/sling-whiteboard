@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
-import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.apache.sling.startupcheck.core.StartupCheck;
 import org.apache.sling.startupcheck.core.monitor.StartupCheckMonitor;
@@ -57,9 +56,11 @@ import static org.apache.sling.api.servlets.ServletResolverConstants.*;
 )
 public class StartupCheckMonitorImpl extends SlingSafeMethodsServlet implements StartupCheckMonitor {
 
+    public static final String INSTANCE_READY = "Instance ready";
+    public static final String INSTANCE_NOT_READY = "Instance not ready";
+
     private final Logger log = LoggerFactory.getLogger(getClass());
     private BundleContext bundleContext;
-
     private ServiceTracker startupCheckTracker;
 
 
@@ -86,10 +87,10 @@ public class StartupCheckMonitorImpl extends SlingSafeMethodsServlet implements 
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response)
             throws ServletException, IOException {
         if (!this.isStarted()) {
-            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "NOT STARTED");
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, INSTANCE_NOT_READY);
             return;
         } else {
-            response.getWriter().print("STARTED"); // all servicechecks reported that they started.
+            response.getWriter().print(INSTANCE_READY); // all servicechecks reported that they started.
             response.flushBuffer();
         }
     }

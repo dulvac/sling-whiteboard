@@ -19,7 +19,8 @@
 package org.apache.sling.startupcheck.core;
 
 import org.osgi.annotation.versioning.ConsumerType;
-import org.apache.sling.startupcheck.core.StartupCheck;
+import org.osgi.framework.FrameworkListener;
+
 /**
  * Checks that OsgiInstaller has finished
  */

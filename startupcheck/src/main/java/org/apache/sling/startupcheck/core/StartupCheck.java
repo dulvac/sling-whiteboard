@@ -21,14 +21,20 @@ package org.apache.sling.startupcheck.core;
 import org.osgi.annotation.versioning.ConsumerType;
 
 /**
- * TODO
+ * Startup check services provide custom logic for signalling
+ * that particular criteria are met for when an instance is considered "started".
+ *
+ * Examples: An asyncronous integration with another instance or a third-party service
+ *
+ * {@see StartupCheckMonitor}
+ *
  */
 @ConsumerType
 public interface StartupCheck {
 
     /**
      *
-     * @return
+     * @return true if the startup check
      */
     boolean isStarted();
 

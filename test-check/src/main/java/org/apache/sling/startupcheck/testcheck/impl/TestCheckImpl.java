@@ -18,9 +18,11 @@
  */
 package org.apache.sling.startupcheck.testcheck.impl;
 
+import org.apache.sling.startupcheck.core.OsgiInstallerCheck;
 import org.apache.sling.startupcheck.core.StartupCheck;
 import org.apache.sling.startupcheck.testcheck.TestCheck;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -36,37 +38,61 @@ import java.util.Map;
 public class TestCheckImpl implements TestCheck {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private long startedTime;
+    private long startedTime = -1;
+    private OsgiInstallerCheck osgiInstallerCheck;
 
     @Activate
     protected void activate(final BundleContext ctx, final Map<String, Object> properties) throws InterruptedException {
         log.info("Activating");
-        Thread.sleep(5000);
-        this.startedTime = System.currentTimeMillis();
+
+        // get reference to OsgiInstallerCheck
+        final ServiceReference<OsgiInstallerCheck> osgiInstallerRef = ctx.getServiceReference(OsgiInstallerCheck.class);
+        this.osgiInstallerCheck = ctx.getService(osgiInstallerRef);
+
         log.info("Activated!");
     }
 
     @Deactivate
     protected void deactivate() throws InterruptedException {
        this.startedTime = -1;
+       this.osgiInstallerCheck = null;
     }
 
     @Override
     public boolean isStarted() {
         log.info("Checking if we're started");
-        long elapsed = System.currentTimeMillis() - this.startedTime;
 
-        if (elapsed < 10000) {
-            log.info("We're not started yet");
+        if (null == osgiInstallerCheck || !osgiInstallerCheck.isStarted()) {
+            log.info("OSGI installation hasn't finished yet");
             return false;
         } else {
-            log.info("We're started!");
-            return true;
+            // start timer;
+            if (this.startedTime < 0) {
+                this.startedTime = System.currentTimeMillis();
+                log.info("Started timer: {}", this.startedTime);
+            }
+
+            long elapsed = System.currentTimeMillis() - this.startedTime;
+
+            if (elapsed < 20000) {
+                log.info("We're not started yet! Elapsed: {}", elapsed);
+                return false;
+            } else {
+                log.info("We're STARTED! Elapsed: {}", elapsed);
+                return true;
+            }
         }
     }
 
     @Override
     public String getStatus() {
-        return "Working hard!";
+        long elapsed = System.currentTimeMillis() - this.startedTime;
+        String status = "Working hard! ";
+        if (this. startedTime > 0) {
+            status +=  "Elapsed: " + elapsed;
+        } else {
+            status += "Waiting for Osgi installation.";
+        }
+        return status;
     }
 }
